@@ -102,7 +102,29 @@ class TextilePreviewPlugin(gedit.Plugin):
 		# Remove the bottom panel
 		bottom = window.get_bottom_panel()
 		bottom.remove_item(windowdata["bottom_panel"])
-	
+	def update_live(self, event, window):
+		windowdata = window.get_data("TextilePreviewData")
+		view = window.get_active_view()
+		if not view:
+			 return
+		
+		doc = view.get_buffer()
+		
+		start = doc.get_start_iter()
+		end = doc.get_end_iter()
+		
+		if doc.get_selection_bounds():
+			start = doc.get_iter_at_mark(doc.get_insert())
+			end = doc.get_iter_at_mark(doc.get_selection_bound())
+		
+		text = doc.get_text(start, end)
+		html = HTML_TEMPLATE % (textile.textile(text),)
+		html_doc = windowdata["html_doc"]
+		html_doc.clear()
+		html_doc.open_stream("text/html")
+		html_doc.write_stream(html)
+		html_doc.close_stream()
+
 	def update_preview(self, window):
 		# Retreive the data of the window object
 		windowdata = window.get_data("TextilePreviewData")
@@ -114,6 +136,7 @@ class TextilePreviewPlugin(gedit.Plugin):
 			 return
 		
 		doc = view.get_buffer()
+		doc.connect("changed", self.update_live, window)
 		
 		start = doc.get_start_iter()
 		end = doc.get_end_iter()
