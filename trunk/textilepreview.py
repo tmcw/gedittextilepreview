@@ -103,6 +103,9 @@ class TextilePreviewPlugin(gedit.Plugin):
 		bottom = window.get_bottom_panel()
 		bottom.remove_item(windowdata["bottom_panel"])
 	def update_live(self, event, window):
+		bottom_panel = window.get_bottom_panel()
+		if not bottom_panel.item_is_active(self.scrolled_window):
+			return
 		windowdata = window.get_data("TextilePreviewData")
 		view = window.get_active_view()
 		if not view:
