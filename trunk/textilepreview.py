@@ -70,7 +70,8 @@ class TextilePreviewPlugin(gedit.Plugin):
 		bottom = window.get_bottom_panel()
 		image = gtk.Image()
 		image.set_from_icon_name("gnome-mime-text-html", gtk.ICON_SIZE_MENU)
-		bottom.add_item(scrolled_window, "Textile Preview", image)
+		self.scrolled_window = scrolled_window
+		bottom.add_item(scrolled_window, "Textile Preview", image) # so this image is null
 		windowdata["bottom_panel"] = scrolled_window
 		windowdata["html_doc"] = html_doc
 		
@@ -105,7 +106,9 @@ class TextilePreviewPlugin(gedit.Plugin):
 	def update_preview(self, window):
 		# Retreive the data of the window object
 		windowdata = window.get_data("TextilePreviewData")
-		
+		bottom_panel = window.get_bottom_panel()
+		bottom_panel.show()
+		bottom_panel.activate_item(self.scrolled_window)
 		view = window.get_active_view()
 		if not view:
 			 return
@@ -120,8 +123,7 @@ class TextilePreviewPlugin(gedit.Plugin):
 			end = doc.get_iter_at_mark(doc.get_selection_bound())
 		
 		text = doc.get_text(start, end)
-		html = HTML_TEMPLATE % (textile.textile(text),)
-		
+		html = HTML_TEMPLATE % (textile.textile(text),)	
 		p = windowdata["bottom_panel"].get_placement()
 		
 		html_doc = windowdata["html_doc"]
